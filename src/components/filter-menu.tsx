@@ -1,14 +1,16 @@
 import { Button } from "./ui/button"
 
+import { Filters } from "./filter-chip"
+
 interface FilterMenuProps {
     filterKind: string
-    filterType: string
+    filterType: keyof Filters
     openDropdown: string | null
     setOpenDropdown: (dropdown: string | null) => void
-    tempFilters: { [key: string]: any }
-    setTempFilters: (filters: { [key: string]: any }) => void
-    filterOptions?: any
-    toggleFilterOption: (filterType: string, option: string) => void
+    tempFilters: Filters
+    setTempFilters: (filters: Filters) => void
+    filterOptions?: string[]
+    toggleFilterOption: (filterType: keyof Filters, option: string) => void
     applyFilter: (filterType: string) => void
 }
 
@@ -53,11 +55,11 @@ export default function FilterMenu({
 
 interface FilterBodyProps {
     filterKind: string
-    filterType: string
-    filterOptions?: any
-    tempFilters: { [key: string]: any }
-    toggleFilterOption: (filterType: string, option: string) => void
-    setTempFilters: (filters: { [key: string]: any }) => void
+    filterType: keyof Filters
+    filterOptions?: string[]
+    tempFilters: Filters
+    toggleFilterOption: (filterType: keyof Filters, option: string) => void
+    setTempFilters: (filters: Filters) => void
 }
 
 function FilterBody({
@@ -66,19 +68,18 @@ function FilterBody({
     filterOptions,
     tempFilters,
     toggleFilterOption,
-    setTempFilters,
 }: FilterBodyProps) {
   // Render based on filter type
   switch (filterKind) {
     case "checkbox":
       return (
         <>
-          {filterOptions.map((option: string) => (
+          {filterOptions && filterOptions.map((option: string) => (
             <div key={option} className="flex items-center text-sm px-4 py-2 hover:bg-gray-100 rounded-sm cursor-pointer">
               <input
                 type="checkbox"
                 id={`${filterType}-${option}`}
-                checked={(tempFilters[filterType] || []).includes(option)}
+                checked={Array.isArray(tempFilters[filterType]) && (tempFilters[filterType] || []).includes(option)}
                 onChange={() => toggleFilterOption(filterType, option)}
                 className="mr-2 cursor-pointer"
               />
@@ -89,20 +90,21 @@ function FilterBody({
       )
 
     case "substring":
+      if (("value" in tempFilters[filterType])) {
       return (
         <div>
             <div className="mb-3">
                 <select
                 value={tempFilters.diagnosis.condition}
-                onChange={(e) =>
-                    setTempFilters((prevTempFilters) => ({
-                    ...prevTempFilters,
-                    diagnosis: {
-                        ...prevTempFilters.diagnosis, // Preserve the existing structure of `tempFilters.diagnosis`
-                        condition: e.target.value,
-                    },
-                    }))
-                }
+                // onChange={(e) =>
+                //     setTempFilters((prevTempFilters) => ({
+                //     ...prevTempFilters,
+                //     diagnosis: {
+                //         ...prevTempFilters.diagnosis, // Preserve the existing structure of `tempFilters.diagnosis`
+                //         condition: e.target.value,
+                //     },
+                //     }))
+                // }
                 className="w-full p-2 border rounded-md text-sm"
                 >
                 <option value="contains">Contains</option>
@@ -112,40 +114,42 @@ function FilterBody({
             <div>
             <input
                 type="text"
-                value={(tempFilters[filterType] || []).value || ""}
-                onChange={(e) =>
-                setTempFilters((prevTempFilters) => ({
-                    ...prevTempFilters,
-                    [filterType]: {
-                    ...prevTempFilters[filterType],
-                    value: e.target.value,
-                    },
-                }))
-                }
+                value={(tempFilters[filterType] as { value?: string })?.value || ""}
+                // onChange={(e) =>
+                // setTempFilters((prevTempFilters) => ({
+                //     ...prevTempFilters,
+                //     [filterType]: {
+                //     ...prevTempFilters[filterType],
+                //     value: e.target.value,
+                //     },
+                // }))
+                // }
                 placeholder="Enter text..."
                 className="w-full p-2 border rounded-md text-sm"
             />
             </div>
         </div>
       )
+    }
 
     case "dateRange":
+      if (("from" in tempFilters[filterType]) && ("to" in tempFilters[filterType])) {
       return (
         <div>
           <div className="mb-3">
             <label className="block text-sm font-medium mb-1">From:</label>
             <input
               type="date"
-              value={tempFilters[filterType]?.from || ""}
-              onChange={(e) =>
-                setTempFilters((prevTempFilters) => ({
-                  ...prevTempFilters,
-                  [filterType]: {
-                    ...prevTempFilters[filterType],
-                    from: e.target.value,
-                  },
-                }))
-              }
+              value={(tempFilters[filterType] as { from?: string })?.from || ""}
+              // onChange={(e) =>
+              //   setTempFilters((prevTempFilters) => ({
+              //     ...prevTempFilters,
+              //     [filterType]: {
+              //       ...prevTempFilters[filterType],
+              //       from: e.target.value,
+              //     },
+              //   }))
+              // }
               className="w-full p-2 border rounded-md"
             />
           </div>
@@ -153,21 +157,22 @@ function FilterBody({
             <label className="block text-sm font-medium mb-1">To:</label>
             <input
               type="date"
-              value={tempFilters[filterType]?.to || ""}
-              onChange={(e) =>
-                setTempFilters((prevTempFilters) => ({
-                  ...prevTempFilters,
-                  [filterType]: {
-                    ...prevTempFilters[filterType],
-                    to: e.target.value,
-                  },
-                }))
-              }
+              value={(tempFilters[filterType] as { to?: string })?.to || ""}
+              // onChange={(e) =>
+              //   setTempFilters((prevTempFilters) => ({
+              //     ...prevTempFilters,
+              //     [filterType]: {
+              //       ...prevTempFilters[filterType],
+              //       to: e.target.value,
+              //     },
+              //   }))
+              // }
               className="w-full p-2 border rounded-md"
             />
           </div>
         </div>
       )
+    }
 
     default:
       return <div>Unknown filter type</div>

@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button"
 
 import FiltersGroup from "./filters-group"
 
+import type { Filters } from "./filter-chip"
+
 // Available filter columns
 const availableFilters = [
   { id: "specialty", label: "Specialty", alwaysVisible: true },
@@ -32,7 +34,7 @@ interface FiltersProps {
 
 
 export default function Filters({ onFiltersChange }: FiltersProps) {
-  const [filters, setFilters] = useState<{ [key: string]: any }>({
+  const [filters, setFilters] = useState<Filters>({
     specialty: [],
     diagnosis: { condition: "contains", value: "" },
     quality: [],
@@ -42,7 +44,7 @@ export default function Filters({ onFiltersChange }: FiltersProps) {
     lastModified: { from: "", to: "" },
   })
 
-  const [tempFilters, setTempFilters] = useState<{ [key: string]: any }>({
+  const [tempFilters, setTempFilters] = useState<Filters>({
     specialty: [],
     diagnosis: { condition: "contains", value: "" },
     quality: [],
@@ -97,17 +99,16 @@ export default function Filters({ onFiltersChange }: FiltersProps) {
       setOpenDropdown(id)
       setTempFilters((prevTempFilters) => ({
         ...prevTempFilters,
-        [id]: filters[id],
+        [id]: filters[id as keyof Filters],
       }))
     }
   }
   
   const applyFilter = (filterType: string) => {
-    console.log("Applying filter:", filterType, tempFilters[filterType])
 
     setFilters((prevFilters) => ({
       ...prevFilters,
-      [filterType]: tempFilters[filterType],
+      [filterType]: tempFilters[filterType as keyof Filters],
     }))
     setOpenDropdown(null)
   }
@@ -176,15 +177,33 @@ export default function Filters({ onFiltersChange }: FiltersProps) {
     setOpenDropdown(null)
   }
 
-  const toggleFilterOption = (filterType: string, option: string) => {
-    setTempFilters((prevTempFilters) => {
-      const updatedFilter = (prevTempFilters[filterType] || []).includes(option)
-        ? prevTempFilters[filterType].filter((o: string) => o !== option)
-        : [...prevTempFilters[filterType], option]
+  // const toggleFilterOption = (filterType: string, option: string) => {
+
+    
+  //   setTempFilters((prevTempFilters) => {
+  //     const updatedFilter = (prevTempFilters[filterType as keyof Filters] || []).includes(option)
+  //       ? prevTempFilters[filterType].filter((o: string) => o !== option)
+  //       : [...prevTempFilters[filterType], option]
   
-      return { ...prevTempFilters, [filterType]: updatedFilter }
-    })
+  //     return { ...prevTempFilters, [filterType]: updatedFilter }
+  //   })
+  // }
+
+  const toggleFilterOption = (filterType: keyof Filters, option: string) => {
+  // Ensure the filterType corresponds to a string[] filter
+  if (Array.isArray(tempFilters[filterType])) {
+    setTempFilters((prevTempFilters) => {
+      const currentFilter = prevTempFilters[filterType] as string[]; // Explicitly cast to string[]
+      const updatedFilter = currentFilter.includes(option)
+        ? currentFilter.filter((o) => o !== option) // Remove the option if it exists
+        : [...currentFilter, option]; // Add the option if it doesn't exist
+
+      return { ...prevTempFilters, [filterType]: updatedFilter };
+    });
+  } else {
+    console.error(`toggleFilterOption can only be used with string[] filters. Received filterType: ${filterType}`);
   }
+};
 
 
   return (
@@ -216,7 +235,7 @@ export default function Filters({ onFiltersChange }: FiltersProps) {
         />
 
         {/* Add Filter Button */}
-        <div className="relative" ref={(el) => (dropdownRefs.current["addFilter"] = el)}>
+        <div className="relative" ref={(el) => { dropdownRefs.current["addFilter"] = el; }}>
           <Button
             variant="ghost"
             className={`flex items-center gap-2 rounded-full cursor-pointer

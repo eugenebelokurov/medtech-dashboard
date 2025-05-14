@@ -1,7 +1,7 @@
 import { Button } from "./ui/button";
 
 import Filter from "./filter";
-import FilterChip from "./filter-chip";
+import FilterChip, { Filters} from "./filter-chip";
 import FilterMenu from "./filter-menu";
 
 // Specialty options
@@ -22,12 +22,12 @@ interface FilterGroupProps {
     activeFilters: string[];
     dropdownRefs: React.MutableRefObject<{ [key: string]: HTMLDivElement | null }>;
     setOpenDropdown: (id: string | null) => void;
-    tempFilters: { [key: string]: any };
-    toggleFilterOption: (filterType: string, option: string) => void;
-    filterOptions?: any;
-    setTempFilters: (filters: { [key: string]: any }) => void;
+    tempFilters: Filters;
+    toggleFilterOption: (filterType: keyof Filters, option: string) => void;
+    filterOptions?: string[];
+    setTempFilters: (filters: Filters) => void;
     applyFilter: (filterType: string) => void;
-    filters: { [key: string]: any };
+    filters: Filters;
     toggleDropdown: (id: string) => void;
     removeFilter: (id: string) => void;
     availableFilters: { id: string; alwaysVisible?: boolean }[];
@@ -126,7 +126,7 @@ export default function FiltersGroup({
 
       {/* Reception Date Filter */}
       {activeFilters.includes("receptionDate") && (
-        <div className="relative" ref={(el) => (dropdownRefs.current["receptionDate"] = el)}>
+        <div className="relative" ref={(el) => { dropdownRefs.current["receptionDate"] = el; }}>
           <FilterChip
             filterType="receptionDate"
             openDropdown={openDropdown}
@@ -144,15 +144,15 @@ export default function FiltersGroup({
                   <input
                     type="date"
                     value={tempFilters.receptionDate.from}
-                    onChange={(e) =>
-                      setTempFilters((prevTempFilters) => ({
-                        ...prevTempFilters,
-                        receptionDate: {
-                          ...prevTempFilters.receptionDate,
-                          from: e.target.value,
-                        },
-                      }))
-                    }
+                    // onChange={(e) =>
+                    //   setTempFilters((prevTempFilters) => ({
+                    //     ...prevTempFilters,
+                    //     receptionDate: {
+                    //       ...prevTempFilters.receptionDate,
+                    //       from: e.target.value,
+                    //     },
+                    //   }))
+                    // }
                     className="w-full p-2 border rounded-md"
                   />
                 </div>
@@ -161,15 +161,15 @@ export default function FiltersGroup({
                   <input
                     type="date"
                     value={tempFilters.receptionDate.to}
-                    onChange={(e) =>
-                      setTempFilters((prevTempFilters) => ({
-                        ...prevTempFilters,
-                        receptionDate: {
-                          ...prevTempFilters.receptionDate,
-                          to: e.target.value,
-                        },
-                      }))
-                    }
+                    // onChange={(e) =>
+                    //   setTempFilters((prevTempFilters) => ({
+                    //     ...prevTempFilters,
+                    //     receptionDate: {
+                    //       ...prevTempFilters.receptionDate,
+                    //       to: e.target.value,
+                    //     },
+                    //   }))
+                    // }
                     className="w-full p-2 border rounded-md"
                   />
                 </div>
@@ -189,7 +189,7 @@ export default function FiltersGroup({
 
       {/* Clinic ID Filter */}
       {activeFilters.includes("clinicId") && (
-        <div className="relative" ref={(el) => (dropdownRefs.current["clinicId"] = el)}>
+        <div className="relative" ref={(el) => { dropdownRefs.current["clinicId"] = el; }}>
           <FilterChip
             filterType="clinicId"
             openDropdown={openDropdown}
@@ -215,7 +215,7 @@ export default function FiltersGroup({
 
       {/* Last Modified Filter */}
       {activeFilters.includes("lastModified") && (
-        <div className="relative" ref={(el) => (dropdownRefs.current["lastModified"] = el)}>
+        <div className="relative" ref={(el) => { dropdownRefs.current["lastModified"] = el; }}>
           <FilterChip
             filterType="lastModified"
             openDropdown={openDropdown}
@@ -233,15 +233,15 @@ export default function FiltersGroup({
                   <input
                     type="date"
                     value={tempFilters.lastModified.from}
-                    onChange={(e) =>
-                      setTempFilters((prevTempFilters) => ({
-                        ...prevTempFilters,
-                        lastModified: {
-                          ...prevTempFilters.lastModified,
-                          from: e.target.value,
-                        },
-                      }))
-                    }
+                    // onChange={(e) =>
+                    //   setTempFilters((prevTempFilters) => ({
+                    //     ...prevTempFilters,
+                    //     lastModified: {
+                    //       ...prevTempFilters.lastModified,
+                    //       from: e.target.value,
+                    //     },
+                    //   }))
+                    // }
                     className="w-full p-2 border rounded-md"
                   />
                 </div>
@@ -250,15 +250,15 @@ export default function FiltersGroup({
                   <input
                     type="date"
                     value={tempFilters.lastModified.to}
-                    onChange={(e) =>
-                      setTempFilters((prevTempFilters) => ({
-                        ...prevTempFilters,
-                        lastModified: {
-                          ...prevTempFilters.lastModified,
-                          to: e.target.value,
-                        },
-                      }))
-                    }
+                    // onChange={(e) =>
+                    //   setTempFilters((prevTempFilters) => ({
+                    //     ...prevTempFilters,
+                    //     lastModified: {
+                    //       ...prevTempFilters.lastModified,
+                    //       to: e.target.value,
+                    //     },
+                    //   }))
+                    // }
                     className="w-full p-2 border rounded-md"
                   />
                 </div>
